@@ -1,0 +1,4 @@
+Emoji graphics: Twemoji by Twitter, Inc. and other contributors (v15, via the @twemoji/svg package).
+Graphics are licensed under CC-BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Source: https://github.com/jdecked/twemoji
+Only the emoji actually used by Pocket Arcade are included here.
