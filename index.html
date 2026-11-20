@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pocket Arcade</title>
+  <meta name="description" content="Ten tiny browser games you can play solo or with friends on one device. No downloads, no accounts.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237B5CFF'/%3E%3Cpath d='M24 18v28l22-14z' fill='%23FFCF33'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="top">
+    <button class="logo" id="home" aria-label="Pocket Arcade home"><b aria-hidden="true">▶</b>Pocket Arcade</button>
+    <span class="sp"></span>
+    <span class="streak" id="streak" hidden></span>
+    <button class="iconbtn" id="sound" aria-label="Turn sound off"></button>
+    <button class="iconbtn" id="theme" aria-label="Switch theme"></button>
+  </header>
+
+  <main id="hub">
+    <section class="hero">
+      <h1>Ten tiny games. <span>Zero</span> downloads.</h1>
+      <p>Daily puzzles, quick reflex tests and party games that run right in your browser. Play solo, or pass the device around with up to four players.</p>
+      <div class="row">
+        <button class="btn pink" id="surprise">Surprise me</button>
+      </div>
+    </section>
+    <div class="filters" role="group" aria-label="Filter games">
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="solo" aria-pressed="false">Solo</button>
+      <button class="chip" data-f="multi" aria-pressed="false">Multiplayer</button>
+      <button class="chip" data-f="daily" aria-pressed="false">Daily</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <p class="foot">Everything runs locally in your browser. Scores and streaks are saved on this device only. Emoji graphics by <a href="assets/emoji/LICENSE.txt">Twemoji</a> (CC-BY 4.0).</p>
+  </main>
+
+  <div id="game" hidden></div>
+  <noscript><p style="padding:2rem">Pocket Arcade needs JavaScript to run.</p></noscript>
+
+  <script src="js/core.js"></script>
+</body>
+</html>
