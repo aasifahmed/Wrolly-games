@@ -22,7 +22,7 @@
     .pad:active{opacity:1}
   `);
 
-  const SYM = ['🐶', '🐱', '🦊', '🐼', '🐸', '🦄', '🐙', '🦋', '🍎', '🍕', '🍩', '🍒', '⚽', '🎸', '🚀', '🌈', '🌻', '🎈', '🍦', '🐢', '🦉', '🍉', '⭐', '🎲'];
+  const SYM = ['🐶', '🐱', '🦊', '🐼', '🐸', '🦄', '🐙', '🦋', '🍎', '🍕', '🍩', '🍒', '⚽', '🎸', '🚀', '🌈', '🌻', '🎈', '🍦', '🐢', '🦉', '🍉', '⭐', '🎲', '🍓', '🐧', '🦁', '🚗', '🎹', '🌙', '🍔', '🐠', '🦖', '🎺', '🏀', '🍇', '🦀', '🚁', '🧁', '🐳'];
   /* levels: [columns, pairs] for card match; [pads, goal length, start speed ms] for sequence */
   const DIFF = { easy: [4, 6, 'Easy'], medium: [4, 8, 'Medium'], hard: [6, 12, 'Hard'], expert: [6, 18, 'Expert'] };
   const SEQ = { easy: [4, 8, 620], medium: [4, 10, 480], hard: [6, 12, 420], expert: [9, 15, 360] };
@@ -49,7 +49,7 @@
 
       /* ---------- card match ---------- */
       function cards() {
-        const [cols, pairs] = DIFF[diff], deck = Core.shuffle([...SYM.slice(0, 24)].sort(() => Math.random() - .5).slice(0, pairs).flatMap(s => [s, s]));
+        const [cols, pairs] = DIFF[diff], deck = Core.shuffle(Core.shuffle(SYM).slice(0, pairs).flatMap(s => [s, s]));
         let open = [], lock = false, moves = 0, found = 0, t0 = 0, tm = 0;
         const info = h('div', { class: 'stat', 'aria-live': 'off' }), msg = h('div', { class: 'msg', 'aria-live': 'polite' });
         const grid = h('div', { class: 'cards', style: { gridTemplateColumns: 'repeat(' + cols + ',1fr)', maxWidth: cols === 6 ? (pairs > 12 ? '620px' : '640px') : '520px' } });

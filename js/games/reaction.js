@@ -8,6 +8,8 @@
   Core.css('reaction', `
     .rt{display:grid;gap:16px}
     .sig{border:4px solid var(--line);border-radius:24px;min-height:min(46vh,300px);display:grid;place-items:center;text-align:center;padding:20px;background:var(--sky);color:#1B1740;user-select:none;-webkit-user-select:none;cursor:pointer;width:100%;font:inherit}
+    .sig{position:relative;overflow:hidden}
+    .tgt{position:absolute;width:84px;height:84px;border-radius:50%;border:4px solid var(--line);background:var(--sun);display:grid;place-items:center;font-size:3rem;box-shadow:var(--shadow);cursor:pointer}
     .sig.wait{background:var(--red);color:#fff}.sig.decoy{background:var(--tangerine);color:#1B1740}.sig.go{background:var(--mint)}.sig.fin{background:var(--sun)}
     .sig .t{font-family:var(--head);font-weight:700;font-size:clamp(2rem,8vw,3.6rem);line-height:1.1}
     .sig .s{font-weight:800;margin-top:6px}
@@ -24,27 +26,36 @@
   const rank = ms => ms < 170 ? 'Lightning reflexes' : ms < 220 ? 'Sharp as a tack' : ms < 270 ? 'Quick' : ms < 330 ? 'Solid average' : ms < 450 ? 'Warming up' : 'Still waking up';
 
   /* levels: solo attempts, duel rounds, chance of an orange fake-out before the real green */
-  const LV = { easy: { n: 5, duel: 5, decoy: 0 }, medium: { n: 8, duel: 7, decoy: .25 }, hard: { n: 10, duel: 9, decoy: .4 }, expert: { n: 12, duel: 11, decoy: .55 } };
+  const LV = { easy: { n: 5, duel: 5, decoy: 0, kinds: ['color'] }, medium: { n: 8, duel: 7, decoy: .25, kinds: ['color', 'shape'] }, hard: { n: 10, duel: 9, decoy: .4, kinds: ['color', 'shape', 'sound'] }, expert: { n: 12, duel: 11, decoy: .55, kinds: ['color', 'shape', 'sound'] } };
+  const WAIT = { color: 'Wait for green...', shape: 'Wait for the star...', sound: 'Wait for the beep...' };
 
   Core.register({
     id: 'reaction',
     mount(ctx) {
       const L = LV[ctx.level] || LV.easy, root = ctx.root, multi = ctx.multi, ROUNDS = multi ? L.duel : L.n;
-      let phase = 'idle', t0 = 0, timer = 0, attempts = [], round = 0, locked = new Set();
+      let kind = 'color', phase = 'idle', t0 = 0, timer = 0, attempts = [], round = 0, locked = new Set();
       const sig = h('button', { class: 'sig', 'aria-live': 'assertive' }), hist = h('div', { class: 'hist' });
       const pads = multi ? ctx.players.map((p, i) => h('button', { class: 'pd', style: { '--pc': p.color }, onpointerdown: e => { e.preventDefault(); press(i); } }, p.name, h('small', null, 'Key ' + KEYS[i].toUpperCase() + ' or tap'))) : [];
       const msg = (t, s, cls) => { sig.className = 'sig ' + (cls || ''); sig.innerHTML = ''; sig.append(h('div', null, h('div', { class: 't' }, t), s ? h('div', { class: 's' }, s) : null)); };
 
-      function idle() { phase = 'idle'; msg(multi ? 'Round ' + (round + 1) + ' of ' + ROUNDS : 'Reaction test', multi ? 'Press the big panel or Space to start' : 'Click here or press Space to start. ' + ROUNDS + ' attempts, wait for green.' + (L.decoy ? ' Ignore the orange fake-outs!' : '')); }
+      function idle() { phase = 'idle'; msg(multi ? 'Round ' + (round + 1) + ' of ' + ROUNDS : 'Reaction test', multi ? 'Press the big panel or Space to start' : 'Click here or press Space to start. ' + ROUNDS + ' attempts. ' + (L.kinds.length > 1 ? 'Signals vary: green screen, a star to tap or a beep. ' : 'Wait for green. ') + (L.decoy ? 'Ignore the orange fake-outs!' : '')); }
       function arm() {
         phase = 'wait'; locked = new Set(); pads.forEach(p => p.classList.remove('out', 'hit'));
-        msg('Wait for green...', multi ? 'Do not press yet!' : null, 'wait');
+        kind = multi ? 'color' : Core.pick(L.kinds); if (kind === 'sound' && Core.sfx.muted) kind = 'color';
+        msg(WAIT[kind], multi ? 'Do not press yet!' : kind === 'sound' ? 'Sound must be on' : null, 'wait');
         goSoon(1500 + Math.random() * 3500, true);
+      }
+      function go() {
+        if (kind === 'shape') {
+          msg('Tap the star!', null, 'go'); const t = h('span', { class: 'tgt', role: 'button', 'aria-label': 'Star target' }, Core.emo('⭐'));
+          t.style.left = (6 + Math.random() * 72) + '%'; t.style.top = (14 + Math.random() * 56) + '%'; sig.append(t);
+        } else if (kind === 'sound') { Core.sfx.tone(988, .25, 'square', .2); sig.querySelector('.t').textContent = 'Listen...'; }
+        else { msg(multi ? 'GO!' : 'CLICK!', null, 'go'); Core.sfx.tone(880, .12, 'square', .12); }
       }
       function goSoon(delay, allowDecoy) {
         timer = setTimeout(() => {
           if (allowDecoy && Math.random() < L.decoy) { msg('Fake out!', 'Only green counts. Keep waiting...', 'decoy'); Core.sfx.tone(300, .18, 'sawtooth', .1); return goSoon(1100 + Math.random() * 1900, false); }
-          phase = 'go'; msg(multi ? 'GO!' : 'CLICK!', null, 'go'); t0 = performance.now(); Core.sfx.tone(880, .12, 'square', .12);
+          phase = 'go'; go(); t0 = performance.now();
         }, delay);
       }
       function early(i) {
@@ -53,7 +64,7 @@
         if (!multi) { phase = 'idle'; msg('Too soon!', 'Click to try that attempt again', 'wait'); return; }
         locked.add(i); pads[i].classList.add('out'); if (ctx.players[i].score > 0) ctx.addScore(i, -1);
         if (locked.size >= ctx.players.length) { phase = 'idle'; msg('Everyone jumped!', 'Press the panel to redo this round', 'wait'); }
-        else { phase = 'wait'; msg(ctx.players[i].name + ' jumped the gun!', 'Wait for green...', 'wait'); timer = setTimeout(() => { phase = 'go'; msg('GO!', null, 'go'); t0 = performance.now(); Core.sfx.tone(880, .12, 'square', .12); }, 1200 + Math.random() * 2500); }
+        else { phase = 'wait'; msg(ctx.players[i].name + ' jumped the gun!', 'Wait for green...', 'wait'); timer = setTimeout(() => { phase = 'go'; go(); t0 = performance.now(); }, 1200 + Math.random() * 2500); }
       }
       function press(i) {
         if (phase === 'wait') return early(i);
@@ -73,12 +84,12 @@
         if (round >= ROUNDS) return setTimeout(() => ctx.finish({ unit: 'pts' }), 900);
         setTimeout(() => { if (phase === 'idle') idle(); }, 1300);
       }
-      function panel() { if (phase === 'idle') arm(); else if (phase === 'wait' && !multi) early(0); else if (phase === 'go' && !multi) press(0); }
-      sig.addEventListener('pointerdown', e => { e.preventDefault(); panel(); });
+      function panel() { if (phase === 'idle') arm(); else if (phase === 'wait' && !multi) early(0); else if (phase === 'go' && !multi && kind !== 'shape') press(0); }
+      sig.addEventListener('pointerdown', e => { e.preventDefault(); if (e.target.closest && e.target.closest('.tgt')) { if (phase === 'go') press(0); return; } panel(); });
       sig.addEventListener('keydown', e => { if (e.code === 'Space' || e.key === 'Enter') e.preventDefault(); });
       const onKey = e => {
         if (document.querySelector('.modal') || e.repeat || e.ctrlKey || e.metaKey) return;
-        if (e.code === 'Space') { e.preventDefault(); if (!multi || phase === 'idle') panel(); return; }
+        if (e.code === 'Space') { e.preventDefault(); if (!multi && phase === 'go' && kind === 'shape') return press(0); if (!multi || phase === 'idle') panel(); return; }
         if (multi) { const i = KEYS.indexOf(e.key.toLowerCase()); if (i >= 0 && i < ctx.players.length) press(i); }
       };
       document.addEventListener('keydown', onKey);

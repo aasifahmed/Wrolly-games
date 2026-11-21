@@ -105,7 +105,140 @@ seed|Plant starts as this
 lamp|Gives light in a room
 drum|Beat this instrument
 farm|Cows and crops live here
-snow|White winter flakes`.split('\n').map(l => { const [w, c] = l.split('|'); return { w, c }; });
+snow|White winter flakes
+bacon|Breakfast strip from a pig
+badge|Sheriff's shiny pin
+baker|Person who makes bread
+bagel|Ring-shaped breakfast bread
+banjo|Twangy string instrument
+barge|Flat boat for freight
+bison|Shaggy American buffalo
+blimp|Airship without a rigid frame
+bloom|What flowers do in spring
+brook|Small stream
+broom|Sweeper with bristles
+brush|Painter's tool
+buggy|Horse-drawn carriage
+cabin|Small wooden home in the woods
+camel|Desert animal with humps
+canoe|Paddled boat
+carol|Christmas song
+chair|Seat with a back
+cheese|Mouse's favourite snack
+chimp|Smart primate
+clown|Circus funny person
+coral|Reef builder
+couch|Sofa
+daisy|White flower with a yellow centre
+diary|Book of private thoughts
+diver|Swims with an oxygen tank
+donut|Sweet ring with a hole
+dwarf|Small fairy tale miner
+easel|Stand for a painting
+elbow|Arm joint
+fairy|Tiny winged magical being
+feast|Big meal
+ferry|Boat that carries cars across water
+fudge|Chocolate candy square
+gecko|Wall-climbing lizard
+giant|Jack's beanstalk foe
+glove|Warm hand cover
+goose|Honking bird
+gourd|Hard-shelled squash
+hammer|Tool for nails
+hatch|Come out of an egg
+hippo|River giant with a big mouth
+hobby|Fun pastime
+ivory|Elephant tusk material
+jolly|Cheerful
+joker|Card with a grin
+kayak|Small paddled boat
+knife|Cuts a sandwich
+knight|Armored warrior
+llama|Fluffy Andes animal
+lobby|Hotel entrance hall
+lunch|Midday meal
+maple|Tree with syrup
+medal|Winner's award
+melon|Big juicy fruit
+mitten|Glove with a pocket for fingers
+mocha|Chocolatey coffee
+mouse|Squeaky cheese eater
+mural|Giant wall painting
+nacho|Tortilla chip with cheese
+nurse|Hospital caregiver
+oasis|Desert water spot
+olive|Martini fruit
+onion|Makes you cry when chopped
+paint|Colour in a can
+panda|Bamboo-loving bear
+parrot|Talking bird
+peach|Fuzzy summer fruit
+pearl|Gem made in an oyster
+plum|Purple stone fruit
+polar|Type of bear in the Arctic
+pony|Small horse
+prize|Contest reward
+puppy|Young dog
+quilt|Patchwork blanket
+quack|Duck's sound
+radio|Listen to music on this
+raven|Black bird in a poem
+reef|Coral home
+robin|Red-breasted bird
+saddle|Rider's seat on a horse
+salsa|Spicy dip or dance
+scarf|Neck warmer
+shark|Fin in the water
+shell|Beach treasure
+skate|Glide on ice or wheels
+sleigh|Santa's ride
+smile|Happy face feature
+spoon|Cereal scooper
+squid|Ten-armed sea creature
+stork|Baby-delivering bird in tales
+straw|Sip through this
+swing|Playground seat on ropes
+taco|Folded tortilla meal
+teddy|Cuddly bear toy
+thumb|Short finger
+toast|Browned bread
+torch|Flashlight in Britain
+towel|Dries you after a bath
+trail|Hiking path
+trout|River fish
+trunk|Elephant's nose
+tuba|Big brass instrument
+tutu|Ballerina's skirt
+vase|Holds flowers
+wheel|Round and rolling
+whisk|Beats eggs
+yodel|Alpine singing style
+bubble|Soap sphere
+pillow|Head rest in bed
+puddle|Rain on the ground
+cookie|Chocolate chip treat
+muffin|Small cupcake-like bread
+pretzel|Twisted salty snack
+popcorn|Movie snack
+pumpkin|Jack-o-lantern fruit
+snowman|Frosty
+sunrise|Dawn view
+thunder|Loud sound after lightning
+tractor|Farm vehicle
+volcano|Mountain that erupts
+dolphin|Smart sea mammal that clicks
+penguin|Tuxedo-wearing Antarctic bird
+giraffe|Tall spotted animal
+octopus|Eight-armed sea animal
+hamster|Pet that runs on a wheel
+pyramid|Egyptian tomb shape
+compass|Points north
+lantern|Portable light
+blanket|Warm bed cover
+cabinet|Storage furniture
+diamond|Hard shiny gem
+trumpet|Brass instrument`.split('\n').map(l => { const [w, c] = l.split('|'); return { w, c }; });
 
   /* levels: how many words to aim for, the fewest we accept, the largest grid, how many candidate words to try */
   const LV = { easy: { target: 5, min: 5, max: 7, pick: 12 }, medium: { target: 8, min: 7, max: 9, pick: 16 }, hard: { target: 11, min: 9, max: 11, pick: 24 }, expert: { target: 14, min: 11, max: 13, pick: 32 } };
@@ -157,6 +290,7 @@ snow|White winter flakes`.split('\n').map(l => { const [w, c] = l.split('|'); re
 
   Core.register({
     id: 'crossword',
+    reset(ctx) { Core.store.set('cw:' + ctx.level + ':' + Core.dayKey(), null); },
     mount(ctx) {
       const root = ctx.root, today = Core.dayKey(), cfg = LV[ctx.level] || LV.easy;
       let mode = Core.store.get('cw:mode', 'daily'); const daily = mode === 'daily', skey = 'cw:' + ctx.level + ':' + today;

@@ -1,6 +1,6 @@
 # Pocket Arcade
 
-Ten tiny browser games in plain HTML, CSS and JavaScript. No frameworks, no CDN, no build step.
+Twelve tiny browser games in plain HTML, CSS and JavaScript. No frameworks, no CDN, no build step.
 
 ## Run it
 Open `index.html` in a browser. It also works from any static host (GitHub Pages, Netlify, Vercel).
@@ -19,6 +19,12 @@ Optional local server: `python3 -m http.server 8000`, then visit http://localhos
 | Drawing Challenge | drawing.js | Prompt, timer, PNG export | Everyone draws, then votes |
 | Daily Mini Crossword | crossword.js | Generated daily from the date | Solo only |
 | Creative Challenges | creative.js | Prompts, timers, favourites | Same challenge, group vote |
+| Snake Rush | snake.js | Arcade snake, walls, rocks, bonus apples | Turn-based, most apples wins |
+| Tile Merge | merge.js | Slide and merge to a goal tile | Timed turns, highest score wins |
+
+## Content
+Roughly: 260 emoji puzzles, 42 synthesized sounds, 21 illusions, 9 spot-the-difference themes, about 220 crossword clues,
+over 1,400 answer words for Daily Word (4, 5 and 6 letters), and hundreds of drawing and creative prompts.
 
 ## Levels
 Every game has four levels (Easy, Medium, Hard, Expert), picked from the buttons above the game. Higher levels mean more rounds, more choices, shorter timers or extra rules.

@@ -2,6 +2,15 @@
 (function () {
   'use strict';
 
+  /* ---------- timer tracking ----------
+     While a game session is active, every setTimeout/setInterval it creates is remembered so Restart,
+     level changes and leaving the game cancel them all (no stale callbacks from the previous run). */
+  const rawTimeout = window.setTimeout.bind(window), rawInterval = window.setInterval.bind(window), rawClearT = window.clearTimeout.bind(window), rawClearI = window.clearInterval.bind(window);
+  let tracked = null;
+  window.setTimeout = function (fn, ms, ...a) { const id = rawTimeout(function () { if (tracked) tracked.delete(id); return typeof fn === 'function' ? fn.apply(this, arguments) : undefined; }, ms, ...a); if (tracked) tracked.add(id); return id; };
+  window.setInterval = function (fn, ms, ...a) { const id = rawInterval(fn, ms, ...a); if (tracked) tracked.add(id); return id; };
+  function clearTracked() { if (tracked) tracked.forEach(id => { rawClearT(id); rawClearI(id); }); }
+
   /* ---------- helpers ---------- */
   function h(tag, props, ...kids) {
     const e = document.createElement(tag);
@@ -12,7 +21,8 @@
       else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
       else if (k === 'style' && typeof v === 'object') {
         for (const s in v) s.startsWith('--') ? e.style.setProperty(s, v[s]) : (e.style[s] = v[s]);
-      } else if (v === true) e.setAttribute(k, '');
+      } else if (k.startsWith('aria-') || k.startsWith('data-')) e.setAttribute(k, String(v));
+      else if (v === true) e.setAttribute(k, '');
       else if (v !== false && v != null) e.setAttribute(k, v);
     }
     kids.flat(Infinity).forEach(c => { if (c == null || c === false) return; e.append(c.nodeType ? c : document.createTextNode(c)); });
@@ -47,7 +57,7 @@
 
   function css(id, text) { if (document.getElementById('css-' + id)) return; const s = document.createElement('style'); s.id = 'css-' + id; s.textContent = text; document.head.append(s); }
 
-  function toast(msg, ms = 1800) { const t = h('div', { class: 'toast', role: 'status' }, msg); document.body.append(t); setTimeout(() => t.remove(), ms); }
+  function toast(msg, ms = 1800) { const t = h('div', { class: 'toast', role: 'status' }, msg); document.body.append(t); rawTimeout(() => t.remove(), ms); }
 
   function modal(content) {
     const m = h('div', { class: 'modal' }, content);
@@ -102,7 +112,9 @@
     { id: 'reaction', title: 'Reaction Test', emoji: '⚡', color: 'var(--sun)', blurb: 'How fast can you react? Go head to head on one keyboard.', modes: ['solo', 'multi'], file: 'js/games/reaction.js' },
     { id: 'draw', title: 'Drawing Challenge', emoji: '🎨', color: 'var(--pink)', blurb: 'Get a prompt, draw it before the clock runs out.', modes: ['solo', 'multi'], file: 'js/games/drawing.js' },
     { id: 'crossword', title: 'Daily Mini Crossword', emoji: '✏️', color: 'var(--sky)', blurb: 'A fresh bite-sized crossword every day.', modes: ['solo'], daily: true, file: 'js/games/crossword.js' },
-    { id: 'creative', title: 'Creative Challenges', emoji: '🎲', color: 'var(--mint)', blurb: 'Random prompts to write, build, draw or act out.', modes: ['solo', 'multi'], file: 'js/games/creative.js' }
+    { id: 'creative', title: 'Creative Challenges', emoji: '🎲', color: 'var(--mint)', blurb: 'Random prompts to write, build, draw or act out.', modes: ['solo', 'multi'], file: 'js/games/creative.js' },
+    { id: 'snake', title: 'Snake Rush', emoji: '🐍', color: 'var(--mint)', blurb: 'Eat, grow and dodge the rocks. Swipe or use the arrow keys.', modes: ['solo', 'multi'], file: 'js/games/snake.js' },
+    { id: 'merge', title: 'Tile Merge', emoji: '🔢', color: 'var(--sky)', blurb: 'Slide and merge matching tiles to reach the goal number.', modes: ['solo', 'multi'], file: 'js/games/merge.js' }
   ];
   const LEVELS = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard'], ['expert', 'Expert']];
   const COLORS = ['#FF5FA2', '#2DC4F5', '#FFCF33', '#2ED9A3'];
@@ -143,6 +155,19 @@
   }));
   $('#surprise').addEventListener('click', () => { sfx.click(); location.hash = '#/' + pick(GAMES).id; });
 
+  /* hero title: the count follows the game list and the text always fits on one line */
+  const NUMW = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen'];
+  const titleEl = $('#title');
+  if (titleEl) titleEl.replaceChildren((NUMW[GAMES.length] || GAMES.length) + ' tiny games. ', h('span', null, 'Zero'), ' downloads.');
+  function fitTitle() {
+    if (!titleEl || hub.hidden) return; titleEl.style.fontSize = '';
+    let fs = parseFloat(getComputedStyle(titleEl).fontSize);
+    while (titleEl.scrollWidth > titleEl.clientWidth + 1 && fs > 12) { fs -= 1; titleEl.style.fontSize = fs + 'px'; }
+  }
+  let fitT = 0; window.addEventListener('resize', () => { clearTimeout(fitT); fitT = rawTimeout(fitTitle, 80); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitTitle);
+  fitTitle();
+
   /* theme + sound toggles */
   const root = document.documentElement;
   const themeBtn = $('#theme'), soundBtn = $('#sound');
@@ -169,7 +194,7 @@
   }
 
   let active = null;
-  function stop() { if (active) { try { active.cleanup && active.cleanup(); } catch (e) { console.error(e); } active = null; } }
+  function stop() { if (active) { try { active.cleanup && active.cleanup(); } catch (e) { console.error(e); } active = null; } clearTracked(); tracked = null; }
 
   function setupDialog(meta) {
     return new Promise(resolve => {
@@ -202,7 +227,7 @@
     const players = setup.names.map((n, i) => ({ name: n, color: COLORS[i], score: 0 }));
     const stage = h('div', { class: 'stage' }), scores = h('div', { class: 'scores', 'aria-live': 'polite' });
     let level = store.get('level:' + meta.id, 'easy'); if (!LEVELS.some(l => l[0] === level)) level = 'easy';
-    const restartBtn = h('button', { class: 'btn alt sm', onclick: () => run() }, 'Restart');
+    const restartBtn = h('button', { class: 'btn alt sm', onclick: () => { sfx.click(); if (def.reset) { try { def.reset(ctx); } catch (e) { console.error(e); } } run(); window.scrollTo(0, 0); toast('Game restarted', 1100); } }, 'Restart');
     const lvBtns = LEVELS.map(([id, t]) => h('button', { 'aria-pressed': id === level, onclick: () => setLevel(id) }, t));
     const lvSeg = h('div', { class: 'seg', role: 'group', 'aria-label': 'Level' }, lvBtns);
     function setLevel(id) { level = id; ctx.level = id; store.set('level:' + meta.id, id); lvBtns.forEach((b, i) => b.setAttribute('aria-pressed', LEVELS[i][0] === id)); sfx.click(); run(); }
@@ -241,6 +266,7 @@
     };
     function run() {
       if (active && active.cleanup) { try { active.cleanup(); } catch (e) { console.error(e); } }
+      clearTracked(); tracked = new Set();
       players.forEach(p => { p.score = 0; }); ctx.turn = 0; stage.innerHTML = ''; ctx.paint();
       const cleanup = def.mount(ctx); active = { id: meta.id, cleanup, ctx };
     }
@@ -250,7 +276,7 @@
   async function route() {
     const id = location.hash.replace('#/', '');
     const meta = GAMES.find(g => g.id === id);
-    if (!meta) { stop(); gameEl.hidden = true; gameEl.innerHTML = ''; hub.hidden = false; renderHub(); renderStreak(); document.title = 'Pocket Arcade'; return; }
+    if (!meta) { stop(); gameEl.hidden = true; gameEl.innerHTML = ''; hub.hidden = false; renderHub(); renderStreak(); document.title = 'Pocket Arcade'; fitTitle(); return; }
     if (active && active.id === id) return;
     document.title = meta.title + ' - Pocket Arcade';
     const setup = await setupDialog(meta);

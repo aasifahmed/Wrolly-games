@@ -167,6 +167,7 @@
 
   Core.register({
     id: 'word',
+    reset() { Core.store.set('word:' + Core.dayKey(), null); },
     mount(ctx) {
       let dead = false, clean = () => { };
       ctx.root.append(h('p', { class: 'muted' }, 'Loading words...'));

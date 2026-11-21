@@ -13,6 +13,8 @@
     .il .q{font-family:var(--head);font-weight:700;font-size:1.3rem;text-align:center}
     .spin{animation:spin 7s linear infinite;transform-origin:50% 50%}
     .spin.rev{animation-direction:reverse}
+    .lc circle{animation:lc 1.2s steps(1,end) infinite}
+    @keyframes lc{0%{opacity:0}8.3%{opacity:1}100%{opacity:1}}
     @keyframes spin{to{transform:rotate(360deg)}}
   `);
 
@@ -78,6 +80,27 @@
       why: 'No triangle is drawn. Your brain fills in the missing edges to make sense of three notched circles. These are called illusory contours.',
       svg: r => { const V = [[200, 52], [118, 190], [282, 190]], cx = 200, cy = 144; let g = ''; V.forEach(([x, y]) => { const a = Math.atan2(cy - y, cx - x); g += `<circle cx="${x}" cy="${y}" r="34" fill="#000"/><path d="M${x} ${y} L${x + 60 * Math.cos(a - .55)} ${y + 60 * Math.sin(a - .55)} L${x + 60 * Math.cos(a + .55)} ${y + 60 * Math.sin(a + .55)}Z" fill="#fff"/>`; });
         if (r) g += `<polygon points="${V.map(v => v.join(',')).join(' ')}" fill="none" stroke="#FF4D5E" stroke-width="2.5" stroke-dasharray="6 5"/>`; return S(g); } }
+    ,{ name: 'Orbison', q: 'Are the sides of the red square perfectly straight?', opts: ['Yes, perfectly straight', 'No, they bend'], a: 0,
+      why: 'The red square is a true square. The circles behind it make its sides look bowed and its corners look pinched.',
+      svg: r => { let g = ''; if (!r) for (let k = 10; k < 230; k += 13) g += `<circle cx="200" cy="120" r="${k}" fill="none" stroke="currentColor" stroke-width="2"/>`; g += `<rect x="150" y="70" width="100" height="100" fill="none" stroke="#FF4D5E" stroke-width="4.5"/>`; return S(g); } },
+    { name: 'Checker shadow', q: 'Which marked square is lighter, A or B?', opts: ['Square A', 'Square B', 'They are the same shade'], a: 2,
+      why: 'A and B are exactly the same grey (#5A5A5A). Your brain discounts shadows, so it brightens B to compensate for being in the dark.',
+      svg: r => { let g = ''; for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) g += `<rect x="${20 + i * 60}" y="${j * 60}" width="60" height="60" fill="${(i + j) % 2 ? '#5a5a5a' : '#c8c8c8'}"/>`;
+        g += `<rect x="200" width="180" height="240" fill="#000" opacity=".55"/><text x="50" y="97" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" text-anchor="middle" fill="#fff">A</text><text x="350" y="97" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" text-anchor="middle" fill="#fff">B</text>`;
+        if (r) g += `<rect x="62" y="78" width="276" height="24" fill="#5a5a5a"/><text x="50" y="97" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" text-anchor="middle" fill="#fff">A</text><text x="350" y="97" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" text-anchor="middle" fill="#fff">B</text>`; return S(g); } },
+    { name: 'Tilt illusion', q: 'Are the lines inside the small circle perfectly vertical?', opts: ['Yes, perfectly vertical', 'No, they lean'], a: 0,
+      why: 'The centre lines are exactly vertical. The tilted lines around them push our perception of angle the opposite way.',
+      svg: r => { let g = '<defs><clipPath id="tc1"><circle cx="200" cy="120" r="112"/></clipPath><clipPath id="tc2"><circle cx="200" cy="120" r="52"/></clipPath></defs><g clip-path="url(#tc1)"><g transform="rotate(20 200 120)">'; for (let x = 60; x < 340; x += 9) g += ln(x, -60, x, 300, 3);
+        g += '</g></g><circle cx="200" cy="120" r="58" fill="#fff"/><g clip-path="url(#tc2)">'; for (let x = 140; x < 262; x += 9) g += ln(x, 60, x, 180, 3); g += '</g>'; if (r) g += guide(200, 20, 200, 220); return S(g); } },
+    { name: 'Top hat', q: 'Which is longer: the height of the hat or the width of its brim?', opts: ['The height', 'The brim width', 'They are the same'], a: 2,
+      why: 'The hat is exactly as tall as the brim is wide (120 units). Vertical lengths seem stretched compared with horizontal ones.',
+      svg: r => S(`<rect x="165" y="60" width="70" height="120" fill="#7B5CFF"/><rect x="140" y="180" width="120" height="14" rx="3" fill="#7B5CFF"/><rect x="165" y="150" width="70" height="12" fill="#FFCF33"/>` + (r ? `<rect x="140" y="60" width="120" height="120" fill="none" stroke="#FF4D5E" stroke-width="2.5" stroke-dasharray="6 5"/>` : '')) },
+    { name: 'Ehrenstein', q: 'Is the red shape a perfect circle?', opts: ['Yes, a perfect circle', 'No, it is squarish'], a: 0,
+      why: 'It is a true circle. The lines meeting it at right angles pull its outline inward, flattening the circle into a rounded square.',
+      svg: r => { let g = ''; if (!r) for (let k = 0; k < 32; k++) { const a = k * Math.PI / 16; g += ln(200 + Math.cos(a) * 34, 120 + Math.sin(a) * 34, 200 + Math.cos(a) * 115, 120 + Math.sin(a) * 115, 2.2); } g += `<circle cx="200" cy="120" r="78" fill="none" stroke="#FF4D5E" stroke-width="4.5"/>`; return S(g); } },
+    { name: 'Oppel-Kundt', q: 'Is the red marker exactly halfway along the line?', opts: ['Yes, exactly halfway', 'No, it is left of the middle', 'No, it is right of the middle'], a: 0,
+      why: 'The marker sits exactly in the middle (at 200 of 40 to 360). A stretch filled with ticks looks longer than an empty one of the same size.',
+      svg: r => { let g = ln(40, 120, 360, 120, 3) + ln(40, 100, 40, 140, 4) + ln(360, 100, 360, 140, 4); for (let x = 48; x < 200; x += 8) g += ln(x, 108, x, 132, 2); g += ln(200, 85, 200, 155, 5, '#FF4D5E'); if (r) g += guide(120, 60, 120, 180) + guide(280, 60, 280, 180); return S(g); } }
   ];
 
   Core.register({
@@ -141,6 +164,7 @@
           card('Spinning spiral', 'Stare at the red dot while the spiral turns, then look away at something still.', spinSvg, h('div', { class: 'row c' }, startBtn), cd),
           card('Scintillating grid', 'Move your eyes across the grid. Dark dots flicker in and out of the white ones, but never stay put.', h('div', { html: S(grid, '0 0 400 240', 'dk') })),
           card('Fading rings', 'Stare at the plus sign for about ten seconds without moving your eyes. The blue glows disappear.', h('div', { html: S(tro) })),
+          card('Lilac chaser', 'Stare at the black cross. A gap seems to chase around the ring, the pink dots may turn green, and finally the dots seem to vanish.', h('div', { html: S((() => { let c = '<rect width="400" height="240" fill="#c9c9c9"/><g class="lc">'; for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; c += `<circle cx="${200 + Math.cos(a) * 80}" cy="${120 + Math.sin(a) * 80}" r="15" fill="#ff7ad9" style="animation-delay:${(-(12 - k) * .1).toFixed(2)}s"/>`; } return c + '</g>' + ln(190, 120, 210, 120, 3, '#000') + ln(200, 110, 200, 130, 3, '#000'); })()) })),
           card('Colour afterimage', 'Stare at the dot on the cyan heart for twenty seconds, then press the button and keep looking at the dot.', after, h('div', { class: 'row c' }, swapBtn))));
       }
 

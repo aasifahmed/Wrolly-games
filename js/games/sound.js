@@ -71,6 +71,20 @@
     { name: 'Countdown beeps', emoji: '🏁', play(a, o, t) { [0, .6, 1.2].forEach(d => osc(a, o, 'square', 440, 0, t + d, .25, .15)); osc(a, o, 'square', 880, 0, t + 1.8, .7, .15); return 2.6; } },
     { name: 'Water drip', emoji: '💧', play(a, o, t) { [0, .9, 1.7, 2.6].forEach(d => { osc(a, o, 'sine', 1400, 500, t + d, .12, .35); osc(a, o, 'sine', 900, 300, t + d + .14, .1, .12); }); return 3; } },
     { name: 'Power-up', emoji: '🔋', play(a, o, t) { [262, 330, 392, 523, 659, 784, 1047].forEach((f, i) => osc(a, o, 'square', f, 0, t + i * .07, .09, .12)); osc(a, o, 'sawtooth', 200, 1600, t, .5, .08, 3000); return 1; } },
+    { name: 'Church bell', emoji: '⛪', play(a, o, t) { [0, 1.6].forEach(d => [1, 2, 2.4, 3, 4.1, 5.4].forEach((m, i) => osc(a, o, 'sine', 196 * m, 0, t + d, 3 - i * .3, .22 / (i + 1)))); return 4.6; } },
+    { name: 'Cuckoo clock', emoji: '🐤', play(a, o, t) { [0, 1.1].forEach(d => { osc(a, o, 'sine', 784, 0, t + d, .32, .35); osc(a, o, 'sine', 622, 0, t + d + .38, .5, .35); }); return 2.2; } },
+    { name: 'Sonar ping', emoji: '📡', play(a, o, t) { [[0, .45], [1.5, .22], [3, .1]].forEach(([d, v]) => osc(a, o, 'sine', 1250, 1180, t + d, 1.3, v)); return 4.4; } },
+    { name: 'Boing spring', emoji: '🦘', play(a, o, t) { const m = osc(a, o, 'sine', 420, 140, t, 1, .4), l = a.createOscillator(), lg = a.createGain(); l.frequency.value = 22; lg.gain.setValueAtTime(160, t); lg.gain.exponentialRampToValueAtTime(2, t + 1); l.connect(lg).connect(m.frequency); l.start(t); l.stop(t + 1.1); return 1.1; } },
+    { name: 'Slide whistle', emoji: '🎶', play(a, o, t) { osc(a, o, 'sine', 400, 1700, t, .7, .3); osc(a, o, 'sine', 1700, 500, t + .75, .6, .3); return 1.5; } },
+    { name: 'Crackling fire', emoji: '🔥', play(a, o, t) { noise(a, o, t, 3.2, .18, 'lowpass', 500, 'flat'); for (let k = 0; k < 70; k++) noise(a, o, t + R(0, 3), R(.015, .05), R(.2, .7), 'highpass', R(1200, 4500), 'env'); return 3.3; } },
+    { name: 'Steam train', emoji: '🚂', play(a, o, t) { for (let k = 0; k < 14; k++) noise(a, o, t + k * .19, .13, .55, 'bandpass', 600, 'env'); osc(a, o, 'square', 600, 0, t + 2.1, .9, .1, 1500); osc(a, o, 'square', 450, 0, t + 2.1, .9, .1, 1500); return 3.1; } },
+    { name: 'Vacuum cleaner', emoji: '🧹', play(a, o, t) { noise(a, o, t, 3, .4, 'bandpass', 1500, 'flat', .5); osc(a, o, 'sawtooth', 110, 0, t, 3, .1, 600); return 3.1; } },
+    { name: 'Microwave ding', emoji: '🍲', play(a, o, t) { [0, .95, 1.9].forEach(d => { osc(a, o, 'sine', 2350, 0, t + d, .9, .4); osc(a, o, 'sine', 4700, 0, t + d, .5, .06); }); return 2.9; } },
+    { name: 'Car horn', emoji: '🚙', play(a, o, t) { [0, .85].forEach(d => { osc(a, o, 'square', 440, 0, t + d, .6, .13, 2200); osc(a, o, 'square', 554, 0, t + d, .6, .13, 2200); }); return 1.5; } },
+    { name: 'Morse code', emoji: '🆘', play(a, o, t) { let x = 0; [.08, .08, .08, .24, .24, .24, .08, .08, .08].forEach(d => { osc(a, o, 'sine', 700, 0, t + x, d, .3); x += d + .09; }); return x; } },
+    { name: 'Typewriter', emoji: '⌨️', play(a, o, t) { let x = 0; for (let k = 0; k < 14; k++) { noise(a, o, t + x, .04, .7, 'bandpass', k % 3 ? 1800 : 1100, 'env', 2); x += R(.09, .2); } osc(a, o, 'sine', 2000, 0, t + x + .1, .6, .3); return x + .8; } },
+    { name: 'Referee whistle', emoji: '🏃', play(a, o, t) { [[0, .35], [.5, .75]].forEach(([d, l]) => { const m = osc(a, o, 'sine', 2800, 0, t + d, l, .25), v = a.createOscillator(), vg = a.createGain(); v.frequency.value = 38; vg.gain.value = 90; v.connect(vg).connect(m.frequency); v.start(t + d); v.stop(t + d + l + .1); }); return 1.4; } },
+    { name: 'Ice cream truck', emoji: '🍨', play(a, o, t) { [523, 659, 784, 659, 523, 659, 784, 1047].forEach((f, i) => { osc(a, o, 'triangle', f, 0, t + i * .24, .3, .2); osc(a, o, 'sine', f * 2, 0, t + i * .24, .2, .05); }); return 2.2; } },
     { name: 'Trumpet fanfare', emoji: '🎺', play(a, o, t) { [[523, 0, .15], [523, .18, .15], [523, .36, .15], [659, .56, .5], [523, 1.1, .2], [659, 1.35, .6]].forEach(([f, d, l]) => { osc(a, o, 'sawtooth', f, 0, t + d, l + .05, .18, 1800); osc(a, o, 'square', f * 2, 0, t + d, l, .04, 2200); }); return 2.1; } }
   ];
 

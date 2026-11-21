@@ -1,5 +1,5 @@
 /* Spot the Difference
-   Every puzzle is generated procedurally as two SVG scenes with hidden changes. Six themes: meadow, beach, space, winter, city, underwater.
+   Every puzzle is generated procedurally as two SVG scenes with hidden changes. Nine themes: meadow, beach, space, winter, city, underwater, farm, candy land, spooky night.
    Levels change how many differences hide, how subtle they are and how many scenes you play.
    Solo: scenes against the clock (mistakes cost seconds). Multiplayer: shared scenes, a correct find keeps your turn. */
 (function () {
@@ -74,6 +74,42 @@
     { id: 'sea', name: 'Under the sea', bg: grad('g', '#46c0f0', '#0b5c9c') + '<rect width="400" height="300" fill="url(#g)"/><g fill="#fff" opacity=".08"><polygon points="60,0 100,0 160,300 40,300"/><polygon points="220,0 260,0 330,300 200,300"/></g><path d="M0 245 Q100 225 200 243 T400 235 V300 H0Z" fill="#E8C98A"/>',
       spawn: [['fish', 'water', 6], ['jelly', 'water', 2, ['#FF9ACB', '#C7A6FF']], ['bubble', 'water', 4, '#ffffff'], ['seaweed', 'floor', 4, ['#2ED9A3', '#5bd16b']], ['chest', 'floor', 1, '#FFCF33'], ['crab', 'floor', 1, '#FF4D5E'], ['shell', 'floor', 2], ['starfish', 'floor', 2]], add: [['fish', 'water'], ['bubble', 'water'], ['starfish', 'floor']] }
   ];
+
+  /* three more themes: farm, candy land and spooky night */
+  Object.assign(D, {
+    barn: c => `<rect x="-24" y="-12" width="48" height="34" fill="${c}"/><polygon points="-28,-12 0,-34 28,-12" fill="#6d3b4a"/><rect x="-8" y="2" width="16" height="20" fill="#fff"/><path d="M-8 2 L8 22 M8 2 L-8 22" stroke="${c}" stroke-width="2"/>`,
+    cow: c => `<ellipse rx="20" ry="11" fill="#fff" stroke="#333" stroke-width="1.5"/><ellipse cx="-8" cy="-2" rx="5" ry="4" fill="${c}"/><ellipse cx="7" cy="3" rx="6" ry="4" fill="${c}"/><circle cx="-22" cy="-4" r="8" fill="#fff" stroke="#333" stroke-width="1.5"/><circle cx="-24" cy="-6" r="1.5" fill="#222"/><rect x="-14" y="9" width="4" height="10" fill="#333"/><rect x="10" y="9" width="4" height="10" fill="#333"/>`,
+    sheep: c => `<g fill="#fff" stroke="#cfd3e6" stroke-width="1.5"><circle cx="-8" r="9"/><circle cx="4" cy="-3" r="10"/><circle cx="11" cy="4" r="8"/><circle cx="-2" cy="6" r="9"/></g><circle cx="-19" cy="2" r="6" fill="${c}"/><rect x="-10" y="12" width="3" height="8" fill="#333"/><rect x="8" y="12" width="3" height="8" fill="#333"/>`,
+    chicken: c => `<ellipse rx="11" ry="9" fill="${c}"/><circle cx="-11" cy="-7" r="6" fill="${c}"/><polygon points="-17,-7 -22,-5 -17,-4" fill="#FF8A3D"/><path d="M-12 -13 q2 -5 4 0" fill="#FF4D5E"/><line x1="-3" y1="9" x2="-3" y2="15" stroke="#FF8A3D" stroke-width="2"/><line x1="4" y1="9" x2="4" y2="15" stroke="#FF8A3D" stroke-width="2"/>`,
+    haystack: c => `<ellipse rx="18" ry="14" fill="${c}"/><path d="M-14 -4 L14 -4 M-17 4 L17 4" stroke="#fff" stroke-width="1.5" opacity=".5"/>`,
+    fence: c => `<g fill="${c}"><rect x="-22" y="-10" width="5" height="22"/><rect x="-8" y="-10" width="5" height="22"/><rect x="6" y="-10" width="5" height="22"/><rect x="20" y="-10" width="5" height="22"/><rect x="-24" y="-5" width="52" height="4"/><rect x="-24" y="4" width="52" height="4"/></g>`,
+    windmill: c => `<polygon points="-8,22 8,22 4,-14 -4,-14" fill="#e6d9c2"/><g transform="translate(0 -14)"><path d="M0 0 L-4 -24 L4 -24Z M0 0 L24 -4 L24 4Z M0 0 L4 24 L-4 24Z M0 0 L-24 4 L-24 -4Z" fill="${c}"/></g>`,
+    lollipop: c => `<line y2="26" stroke="#fff" stroke-width="3"/><circle r="13" fill="${c}"/><path d="M0 0 m-9 0 a9 9 0 1 1 9 9 a5 5 0 1 1 -5 -5" fill="none" stroke="#fff" stroke-width="2.5"/>`,
+    cupcake: c => `<path d="M-12 0 L12 0 L9 16 L-9 16Z" fill="${c}"/><path d="M-14 0 a14 12 0 0 1 28 0Z" fill="#fff" stroke="#f3c6dd" stroke-width="1.5"/><circle cy="-13" r="4" fill="#FF4D5E"/>`,
+    icecream: c => `<polygon points="-10,0 10,0 0,26" fill="#e0a45e"/><circle cy="-4" r="11" fill="${c}"/><circle cy="-15" r="9" fill="#fff"/>`,
+    donut: c => `<circle r="13" fill="#e0a45e"/><circle r="10" fill="${c}"/><circle r="4" fill="#ffe8f5"/><g fill="#fff"><rect x="-6" y="-7" width="3" height="1.5"/><rect x="4" y="-5" width="3" height="1.5"/><rect x="-3" y="6" width="3" height="1.5"/></g>`,
+    candycane: c => `<path d="M-8 22 L-8 -8 a8 8 0 0 1 16 0" fill="none" stroke="#fff" stroke-width="6"/><path d="M-8 22 L-8 -8 a8 8 0 0 1 16 0" fill="none" stroke="${c}" stroke-width="6" stroke-dasharray="4 4"/>`,
+    gumdrop: c => `<path d="M-12 12 A12 16 0 0 1 12 12Z" fill="${c}"/><g fill="#fff" opacity=".7"><circle cx="-4" cy="2" r="1.5"/><circle cx="3" cy="-1" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="-6" cy="8" r="1.5"/></g>`,
+    cookie: c => `<circle r="13" fill="#d9a066"/><g fill="${c}"><circle cx="-5" cy="-4" r="2.5"/><circle cx="5" cy="-2" r="2.5"/><circle cx="-1" cy="6" r="2.5"/><circle cx="7" cy="7" r="2"/></g>`,
+    ghost: c => `<path d="M-12 14 V-2 a12 14 0 0 1 24 0 V14 l-4 -4 l-4 4 l-4 -4 l-4 4 l-4 -4Z" fill="${c}"/><circle cx="-4" cy="-3" r="2.5" fill="#222"/><circle cx="4" cy="-3" r="2.5" fill="#222"/>`,
+    pumpkin: c => `<ellipse rx="15" ry="12" fill="${c}"/><ellipse cx="-7" rx="7" ry="12" fill="none" stroke="#000" stroke-width="1.2" opacity=".25"/><rect x="-2" y="-16" width="4" height="6" fill="#3d7a2a"/><polygon points="-8,-3 -3,-3 -5,2" fill="#FFE066"/><polygon points="3,-3 8,-3 5,2" fill="#FFE066"/><path d="M-6 5 L-3 3 L0 5 L3 3 L6 5 L3 8 L-3 8Z" fill="#FFE066"/>`,
+    bat: c => `<path d="M0 -3 Q-8 -12 -20 -6 Q-14 -2 -15 4 Q-8 0 -4 5 L0 0 L4 5 Q8 0 15 4 Q14 -2 20 -6 Q8 -12 0 -3Z" fill="${c}"/>`,
+    tomb: c => `<path d="M-10 18 V-4 a10 12 0 0 1 20 0 V18Z" fill="${c}"/><rect x="-1.5" y="-6" width="3" height="12" fill="#444"/><rect x="-5" y="-2" width="10" height="3" fill="#444"/>`,
+    candle: c => `<rect x="-4" y="-6" width="8" height="22" fill="${c}"/><ellipse cy="-12" rx="3" ry="5" fill="#FFCF33"/>`,
+    deadtree: c => `<path d="M0 24 V-6 M0 6 L-12 -6 M0 0 L10 -12 M-12 -6 L-16 -14 M10 -12 L16 -18" stroke="${c}" stroke-width="4" fill="none" stroke-linecap="round"/>`
+  });
+  Object.assign(RAD, { barn: 38, cow: 28, sheep: 24, chicken: 18, haystack: 20, fence: 30, windmill: 34, lollipop: 24, cupcake: 22, icecream: 26, donut: 17, candycane: 24, gumdrop: 18, cookie: 16, ghost: 20, pumpkin: 20, bat: 22, tomb: 22, candle: 20, deadtree: 30 });
+  THEMES.push(
+    { id: 'farm', name: 'Farm', bg: grad('g', '#a8dcff', '#f0fbff') + '<rect width="400" height="300" fill="url(#g)"/><path d="M0 165 Q110 135 220 160 T400 150 V300 H0Z" fill="#9bd86b"/><path d="M0 220 Q130 195 250 217 T400 208 V300 H0Z" fill="#7fc654"/>',
+      spawn: [['sun', 'sky', 1, '#FFCF33'], ['cloud', 'sky', 2, '#ffffff'], ['bird', 'sky', 2, '#34305a'], ['barn', 'ground', 1, ['#c0392b', '#d35400']], ['cow', 'ground', 2, ['#333333', '#6d4a30']], ['sheep', 'ground', 2, '#333333'], ['chicken', 'ground', 3, ['#FFCF33', '#FF8A3D', '#c97b4a']], ['haystack', 'ground', 2, '#e6c36a'], ['fence', 'ground', 2, '#c9a06a'], ['windmill', 'ground', 1], ['tree', 'ground', 2, GREENS]],
+      add: [['chicken', 'ground'], ['bird', 'sky'], ['haystack', 'ground']] },
+    { id: 'candy', name: 'Candy land', bg: grad('g', '#ffd0ea', '#fff3fa') + '<rect width="400" height="300" fill="url(#g)"/><path d="M0 170 Q100 140 200 168 T400 152 V300 H0Z" fill="#bff3dc"/><path d="M0 222 Q120 198 230 220 T400 210 V300 H0Z" fill="#ffc2e0"/>',
+      spawn: [['cloud', 'sky', 2, '#ffffff'], ['balloon', 'sky', 2], ['lollipop', 'ground', 3], ['cupcake', 'ground', 2], ['icecream', 'ground', 2], ['donut', 'ground', 2], ['candycane', 'ground', 3, '#FF4D5E'], ['gumdrop', 'ground', 3], ['cookie', 'ground', 2, '#6d3b1f']],
+      add: [['gumdrop', 'ground'], ['balloon', 'sky'], ['lollipop', 'ground']] },
+    { id: 'spooky', name: 'Spooky night', bg: grad('g', '#2b1a5e', '#7a3fa0') + '<rect width="400" height="300" fill="url(#g)"/><path d="M0 175 Q100 145 200 172 T400 160 V300 H0Z" fill="#2d1b45"/><path d="M0 228 Q120 204 230 226 T400 216 V300 H0Z" fill="#3a2358"/>',
+      spawn: [['moon', 'sky', 1, '#fff2b0'], ['cloud', 'sky', 2, '#8a62b8'], ['bat', 'sky', 3, '#120a24'], ['star', 'sky', 4, '#FFE066'], ['ghost', 'ground', 3, '#ffffff'], ['pumpkin', 'ground', 3, '#FF8A3D'], ['tomb', 'ground', 3, '#9a98b5'], ['candle', 'ground', 2, '#f3e9d2'], ['deadtree', 'ground', 3, '#8a6a52']],
+      add: [['star', 'sky'], ['bat', 'sky'], ['pumpkin', 'ground']] }
+  );
 
   function g(o) { return `<g transform="translate(${o.x.toFixed(1)} ${o.y.toFixed(1)}) scale(${o.s.toFixed(2)})">${D[o.t](o.c)}</g>`; }
   const scene = (th, objs) => th.bg + objs.slice().sort((a, b) => a.y - b.y).map(g).join('');
